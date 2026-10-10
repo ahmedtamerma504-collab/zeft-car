@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JANA.GARAGE // جدول السرعة والسباق 🏎️⚡</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        garage: {
+                            dark: '#080c14',
+                            card: '#111827',
+                            cardLight: '#ffffff',
+                            accent: '#ef4444',
+                            gold: '#f59e0b',
+                        }
+                    },
+                    animation: {
+                        'rev': 'revEngine 2s infinite ease-in-out',
+                        'float': 'float 3s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 2s infinite ease-in-out',
+                    },
+                    keyframes: {
+                        revEngine: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.02)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-6px)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.7 },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        * {
+            font-family: 'Tajawal', sans-serif;
+        }
+        .speed-font {
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        /* Dark Asphalt Pattern */
+        .bg-asphalt {
+            background-color: #0b0f19;
+            background-image: 
+                radial-gradient(#1f2937 1px, transparent 1px),
+                linear-gradient(to right, rgba(239, 68, 68, 0.03) 1px, transparent 1px);
+            background-size: 24px 24px, 100% 100%;
+        }
+
+        /* Light Asphalt / Clean Track */
+        .bg-asphalt-light {
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(#cbd5e1 1.5px, transparent 1.5px),
+                linear-gradient(to right, rgba(239, 68, 68, 0.02) 1px, transparent 1px);
+            background-size: 24px 24px, 100% 100%;
+        }
+
+        .garage-card {
+            background: rgba(17, 24, 39, 0.9);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .light .garage-card {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+        }
+
+        .racing-stripe {
+            background: repeating-linear-gradient(
+                45deg,
+                #ef4444,
+                #ef4444 15px,
+                #111827 15px,
+                #111827 30px
+            );
+        }
+
+        .neon-red {
+            color: #ef4444;
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+        }
+
+        .light .neon-red {
+            color: #dc2626;
+            text-shadow: none;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ef4444;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-asphalt min-h-screen text-slate-100 light:text-slate-800 transition-colors duration-300 pb-16">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-50 bg-[#080c14]/95 light:bg-white/95 backdrop-blur-md border-b-2 border-red-500/40 light:border-red-500/30 shadow-xl shadow-red-950/20 light:shadow-slate-200">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            
+            <!-- Logo & Title -->
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-red-600 to-amber-500 flex items-center justify-center text-white shadow-lg shadow-red-600/30 animate-float">
+                    <i data-lucide="gauge" class="w-7 h-7"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-black speed-font tracking-wider neon-red">JANA.GARAGE // TURBO_MODE 🏎️</h1>
+                    <p class="text-[11px] text-slate-400 light:text-slate-500 font-medium">لوحة قيادة السرعة، المذاكرة الذكية، والوصول لخط النهاية!</p>
+                </div>
+            </div>
+
+            <!-- Controls & Streak -->
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 bg-slate-900/90 light:bg-slate-100 border border-amber-500/40 px-3.5 py-1.5 rounded-xl shadow-inner">
+                    <i data-lucide="flame" class="w-4 h-4 text-amber-500 animate-bounce"></i>
+                    <div>
+                        <span class="text-[9px] text-amber-400 light:text-amber-600 font-bold block leading-none">عداد التوربو</span>
+                        <span id="streakCounter" class="text-base font-black text-amber-400 light:text-amber-600 speed-font leading-none">0 PTS</span>
+                    </div>
+                </div>
+
+                <!-- Open Editor Modal Button -->
+                <button onclick="openEditorModal()" class="flex items-center gap-1.5 bg-red-600 hover:bg-red-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-md shadow-red-600/20 transform active:scale-95">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                    تعديل الجدول والمواد ⚙️
+                </button>
+
+                <!-- Theme Toggle Button -->
+                <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-900 light:bg-slate-100 hover:bg-slate-800 light:hover:bg-slate-200 text-amber-400 light:text-amber-600 transition-all border border-slate-700 light:border-slate-300" title="تبديل المظهر">
+                    <i id="themeIcon" data-lucide="sun" class="w-4 h-4"></i>
+                </button>
+
+                <!-- Print Button -->
+                <button onclick="window.print()" class="hidden sm:flex items-center gap-1.5 bg-slate-900 light:bg-slate-100 hover:bg-slate-800 light:hover:bg-slate-200 text-slate-200 light:text-slate-700 px-3 py-2 rounded-xl text-xs font-bold transition border border-slate-700 light:border-slate-300">
+                    <i data-lucide="printer" class="w-3.5 h-3.5 text-red-500"></i>
+                    طباعة
+                </button>
+            </div>
+        </div>
+        <div class="h-1 w-full racing-stripe"></div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 mt-6 space-y-6">
+
+        <!-- Racing Motivation Banner -->
+        <div id="motivationBanner" class="bg-gradient-to-r from-red-950 via-slate-900 to-amber-950 light:from-red-500 light:via-rose-600 light:to-amber-500 rounded-2xl p-6 border border-red-500/40 light:border-transparent shadow-2xl relative overflow-hidden text-white">
+            <div class="absolute -left-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+            <div class="absolute -right-10 -top-10 w-48 h-48 bg-yellow-400/20 rounded-full blur-3xl"></div>
+
+            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="space-y-2 text-center md:text-right">
+                    <div class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3.5 py-1 rounded-lg text-xs font-bold text-yellow-300 border border-white/20">
+                        <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                        <span>[PIT STOP]: شحن طاقة القيادة لجنى اليوم ⚡</span>
+                    </div>
+                    <blockquote id="quoteText" class="text-base md:text-lg font-extrabold leading-relaxed">
+                        "السرعة الحقيقية ليست في القيادة العشوائية، بل في التحكم الكامل والوصول للهدف بدقة!"
+                    </blockquote>
+                    <p id="quoteAuthor" class="text-xs text-red-200 font-medium">اضبط محرك تركيزك.. انطلقي نحو خط النهاية كالأبطال 🏁</p>
+                </div>
+                
+                <button onclick="generateRandomQuote()" class="shrink-0 bg-white text-red-600 hover:bg-yellow-300 hover:text-slate-950 font-black px-5 py-3 rounded-xl text-xs transition-all shadow-lg flex items-center gap-2 transform active:scale-95">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    تغيير الغيار (عبارة جديدة) 🏎️
+                </button>
+            </div>
+        </div>
+
+        <!-- Live Garage Day Schedule -->
+        <div class="garage-card rounded-2xl p-6 relative overflow-hidden">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                
+                <div class="space-y-2">
+                    <div class="flex items-center gap-3">
+                        <span class="p-2 rounded-lg bg-red-500/10 text-red-500 font-bold text-xs flex items-center gap-1.5 border border-red-500/30">
+                            <i data-lucide="calendar" class="w-4 h-4"></i>
+                            جدول السباق اليومي
+                        </span>
+                        <!-- Day Switcher Selector -->
+                        <select id="daySelector" onchange="renderTodayCard(this.value)" class="bg-slate-900 light:bg-slate-100 text-amber-300 light:text-slate-800 font-bold text-xs rounded-xl px-3 py-2 border border-red-500/40 light:border-slate-300 outline-none focus:ring-1 focus:ring-red-500">
+                            <option value="Saturday">السبت</option>
+                            <option value="Sunday">الأحد</option>
+                            <option value="Monday">الاثنين</option>
+                            <option value="Tuesday">الثلاثاء</option>
+                            <option value="Wednesday">الأربعاء</option>
+                            <option value="Thursday">الخميس</option>
+                            <option value="Friday">الجمعة</option>
+                        </select>
+                    </div>
+
+                    <h2 id="todayTitle" class="text-xl md:text-2xl font-black text-slate-100 light:text-slate-900 flex items-center gap-2">
+                        انطلاقة يوم <span id="todayDayName" class="neon-red">--</span> // المحطات الجاهزة 👇
+                    </h2>
+                    <p id="todaySubtitle" class="text-xs text-slate-400 light:text-slate-600 font-medium">رصد مباشر لجميع محطاتك ومواعيدك لليوم الحالي.</p>
+                </div>
+
+                <!-- Complete All Today Tasks Button -->
+                <button onclick="markAllTodayTasksComplete()" class="bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-bold px-6 py-3.5 rounded-xl shadow-lg shadow-red-600/30 text-xs flex items-center justify-center gap-2.5 transition transform hover:-translate-y-0.5 active:translate-y-0">
+                    <i data-lucide="flag" class="w-5 h-5 text-amber-300"></i>
+                    <span>تجاوز كل مهام اليوم والوصول لخط النهاية 🏆</span>
+                </button>
+            </div>
+
+            <!-- Dynamic Tasks Container for Selected Day -->
+            <div id="todayScheduleBadges" class="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- LEFT SIDE: POMODORO TIMER (5 Cols) -->
+            <div class="lg:col-span-5 garage-card rounded-2xl p-6 flex flex-col justify-between">
+                <div>
+                    <!-- Header -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <div class="p-2.5 rounded-xl bg-red-500/10 text-red-500 border border-red-500/30">
+                                <i data-lucide="timer" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-extrabold text-base text-slate-100 light:text-slate-900">عداد التوربو (بومودورو) ⏱️</h3>
+                                <p class="text-[11px] text-slate-400 light:text-slate-600">انطلاق 25د // استراحة كراج 5د</p>
+                            </div>
+                        </div>
+                        <span id="pomoModeBadge" class="text-[10px] font-black px-3 py-1 rounded-lg bg-red-950 light:bg-red-100 text-red-400 light:text-red-700 border border-red-500/40">
+                            وضع السرعة القصوى 🎯
+                        </span>
+                    </div>
+
+                    <!-- Mode Selectors -->
+                    <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 light:bg-slate-100 rounded-xl text-xs font-bold mb-5 border border-slate-800 light:border-slate-200">
+                        <button onclick="setPomoMode('work')" id="btnPomoWork" class="py-2 rounded-lg transition bg-red-600 text-white shadow-sm">
+                            سباق (25د)
+                        </button>
+                        <button onclick="setPomoMode('shortBreak')" id="btnPomoShort" class="py-2 rounded-lg transition text-slate-400 light:text-slate-600 hover:text-slate-200">
+                            صيانة (5د)
+                        </button>
+                        <button onclick="setPomoMode('longBreak')" id="btnPomoLong" class="py-2 rounded-lg transition text-slate-400 light:text-slate-600 hover:text-slate-200">
+                            استراحة (15د)
+                        </button>
+                    </div>
+
+                    <!-- Timer Display -->
+                    <div class="text-center my-3 py-4 bg-slate-950/80 light:bg-slate-50 rounded-2xl border border-red-500/20 light:border-slate-200">
+                        <div id="pomoTimerDisplay" class="text-5xl md:text-6xl font-black speed-font tracking-wider text-amber-400 light:text-red-600">
+                            25:00
+                        </div>
+                        <p id="pomoStatusText" class="text-xs text-slate-400 light:text-slate-600 mt-2 font-medium">المحرك جاهز.. اضغطي انطلاق 🚀</p>
+                    </div>
+                </div>
+
+                <!-- Timer Controls -->
+                <div class="flex items-center gap-3 mt-4">
+                    <button id="pomoStartBtn" onclick="togglePomoTimer()" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-red-600/25 text-xs flex items-center justify-center gap-2 transition active:scale-95">
+                        <i id="pomoPlayIcon" data-lucide="play" class="w-4 h-4"></i>
+                        <span id="pomoStartBtnText">انطلاق السباق</span>
+                    </button>
+                    <button onclick="resetPomoTimer()" class="bg-slate-900 light:bg-slate-100 hover:bg-slate-800 light:hover:bg-slate-200 text-slate-300 light:text-slate-700 p-3 rounded-xl text-xs font-bold transition border border-slate-700 light:border-slate-300" title="إعادة ضبط">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4 text-red-500"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE: TO-DO LIST FOR TODAY (7 Cols) -->
+            <div class="lg:col-span-7 garage-card rounded-2xl p-6 flex flex-col justify-between">
+                <div>
+                    <!-- Header & Progress -->
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <div class="p-2.5 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/30">
+                                <i data-lucide="check-square" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-extrabold text-base text-slate-100 light:text-slate-900">مهام كراج الصيانة والسباق 📝</h3>
+                                <p class="text-[11px] text-slate-400 light:text-slate-600">أجبري محرك يومك على تجاوز كل التحديات</p>
+                            </div>
+                        </div>
+                        <span id="todoProgressText" class="text-xs font-black text-amber-400 light:text-red-600">0 / 0 (0%)</span>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-slate-950 light:bg-slate-100 h-2.5 rounded-full overflow-hidden mb-4 border border-slate-800 light:border-slate-200">
+                        <div id="todoProgressBar" class="bg-gradient-to-r from-red-500 to-amber-500 h-full w-0 transition-all duration-500"></div>
+                    </div>
+
+                    <!-- Input Form -->
+                    <form onsubmit="addNewTask(event)" class="flex gap-2 mb-4">
+                        <input type="text" id="newTaskInput" placeholder="أضيفي مهمة جديدة لجدول السباق..." class="flex-1 bg-slate-950 light:bg-slate-50 border border-slate-700 light:border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-100 light:text-slate-800 outline-none focus:ring-1 focus:ring-red-500 transition">
+                        <button type="submit" class="bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-red-600/30 transition active:scale-95 shrink-0">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            إضافة
+                        </button>
+                    </form>
+
+                    <!-- Tasks List Container -->
+                    <div id="tasksList" class="space-y-2 max-h-[210px] overflow-y-auto pr-1">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-800 light:border-slate-200 flex justify-between items-center text-xs text-slate-400 light:text-slate-600">
+                    <span id="tasksRemainingCount">0 مهام متبقية</span>
+                    <button onclick="clearCompletedTasks()" class="text-red-400 light:text-red-600 font-bold hover:underline">
+                        مسح المهام المنجزة
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SPECIAL STUDY PLAN SECTION (Math, Arabic, English, Bio, Chem, GAT) -->
+        <div class="garage-card rounded-2xl p-6 space-y-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 light:border-slate-200 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-3 rounded-2xl bg-gradient-to-br from-red-600 to-amber-500 text-white shadow-md">
+                        <i data-lucide="book-open-check" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-slate-100 light:text-slate-900">جدول المذاكرة الذكي للمواد الدراسية 📚⚡</h3>
+                        <p class="text-xs text-slate-400 light:text-slate-600">خطة محترمة لكل المواد (رياضيات، عربي، إنجليزي، أحياء، كيمياء، لفظي)</p>
+                    </div>
+                </div>
+                <button onclick="openStudyEditorModal()" class="bg-slate-900 light:bg-slate-100 hover:bg-slate-800 light:hover:bg-slate-200 text-amber-400 light:text-amber-600 border border-amber-500/40 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    إضافة أو تعديل مواد المذاكرة ✍️
+                </button>
+            </div>
+
+            <div id="studyPlanGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+
+        <!-- GAT Challenge Banner -->
+        <div class="bg-gradient-to-r from-slate-950 via-red-950 to-slate-950 light:from-red-600 light:via-rose-600 light:to-amber-500 rounded-2xl p-6 border border-red-500/40 light:border-transparent shadow-xl relative overflow-hidden text-white">
+            <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+            <div class="relative z-10 flex flex-wrap justify-between items-center gap-4">
+                <div class="space-y-1">
+                    <div class="inline-flex items-center gap-2 bg-slate-900 light:bg-white/20 px-3 py-1 rounded-lg text-xs font-bold text-amber-300 border border-white/20">
+                        <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                        <span>تحدي القدرات (مضمار السرعة الفائقة)</span>
+                    </div>
+                    <h2 class="text-xl md:text-2xl font-black">هدف اليوم: 45-60 دقيقة قدرات 🎯</h2>
+                    <p class="text-xs text-red-200 light:text-red-100">ساعة واحدة يومياً تضعك في المركز الأول وتضمن لك التميز!</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button id="verbalBtn" onclick="toggleVerbalStatus()" class="px-5 py-2.5 rounded-xl font-bold text-xs bg-amber-400 text-slate-950 hover:bg-amber-300 transition shadow-lg flex items-center gap-2 transform active:scale-95">
+                        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                        <span id="verbalBtnText">أتممت سباق القدرات اليوم ✨</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 light:border-slate-200 pb-2">
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 w-full sm:w-auto">
+                <button onclick="switchTab('weekly')" id="tab-weekly" class="tab-btn px-5 py-2.5 rounded-xl font-bold text-xs bg-red-600 text-white shadow-md flex items-center gap-2 transition">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    الجدول الأسبوعي الشامل
+                </button>
+                <button onclick="switchTab('teachers')" id="tab-teachers" class="tab-btn px-5 py-2.5 rounded-xl font-bold text-xs bg-slate-900 light:bg-slate-100 text-slate-300 light:text-slate-700 hover:bg-slate-800 light:hover:bg-slate-200 flex items-center gap-2 transition border border-slate-800 light:border-slate-200">
+                    <i data-lucide="users" class="w-4 h-4 text-red-500"></i>
+                    فريق الصيانة (المعلمين)
+                </button>
+                <button onclick="switchTab('daily')" id="tab-daily" class="tab-btn px-5 py-2.5 rounded-xl font-bold text-xs bg-slate-900 light:bg-slate-100 text-slate-300 light:text-slate-700 hover:bg-slate-800 light:hover:bg-slate-200 flex items-center gap-2 transition border border-slate-800 light:border-slate-200">
+                    <i data-lucide="clock" class="w-4 h-4 text-amber-500"></i>
+                    خطة مضمار اليوم الدراسي
+                </button>
+            </div>
+
+            <!-- Category Legend -->
+            <div class="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-400 light:text-slate-600">
+                <span class="flex items-center gap-1.5 bg-sky-950 light:bg-sky-100 text-sky-300 light:text-sky-800 px-2.5 py-1 rounded-lg border border-sky-800 light:border-sky-300"><span class="w-2 h-2 rounded-full bg-sky-400"></span>المدرسة</span>
+                <span class="flex items-center gap-1.5 bg-fuchsia-950 light:bg-fuchsia-100 text-fuchsia-300 light:text-fuchsia-800 px-2.5 py-1 rounded-lg border border-fuchsia-800 light:border-fuchsia-300"><span class="w-2 h-2 rounded-full bg-fuchsia-400"></span>القدرات</span>
+                <span class="flex items-center gap-1.5 bg-purple-950 light:bg-purple-100 text-purple-300 light:text-purple-800 px-2.5 py-1 rounded-lg border border-purple-800 light:border-purple-300"><span class="w-2 h-2 rounded-full bg-purple-400"></span>الدروس</span>
+                <span class="flex items-center gap-1.5 bg-teal-950 light:bg-teal-100 text-teal-300 light:text-teal-800 px-2.5 py-1 rounded-lg border border-teal-800 light:border-teal-300"><span class="w-2 h-2 rounded-full bg-teal-400"></span>السباحة</span>
+                <span class="flex items-center gap-1.5 bg-rose-950 light:bg-rose-100 text-rose-300 light:text-rose-800 px-2.5 py-1 rounded-lg border border-rose-800 light:border-rose-300"><span class="w-2 h-2 rounded-full bg-rose-400"></span>القرآن</span>
+            </div>
+        </div>
+
+        <!-- Weekly Schedule Matrix View -->
+        <div id="view-weekly" class="space-y-4">
+            <div id="weeklyMatrixGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+
+        <!-- Mentors / Teachers Directory View -->
+        <div id="view-teachers" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+            <!-- Math Card -->
+            <div class="garage-card rounded-2xl p-6 border-l-4 border-purple-500 shadow-sm transition">
+                <div class="w-12 h-12 rounded-xl bg-purple-950 light:bg-purple-100 text-purple-400 light:text-purple-700 border border-purple-500/30 flex items-center justify-center mb-4">
+                    <i data-lucide="calculator" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-lg font-black text-slate-100 light:text-slate-900">الرياضيات</h3>
+                <p class="text-xs font-bold text-purple-400 light:text-purple-600 mb-4">Ms. Monira Fouad</p>
+                <div class="space-y-2 text-xs text-slate-300 light:text-slate-700">
+                    <div class="flex items-center gap-2 bg-slate-950 light:bg-slate-50 p-2.5 rounded-xl border border-slate-800 light:border-slate-200">
+                        <i data-lucide="clock" class="w-4 h-4 text-purple-400"></i>
+                        <span>الأحد: الساعة 9:00 مساءً</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-950 light:bg-slate-50 p-2.5 rounded-xl border border-slate-800 light:border-slate-200">
+                        <i data-lucide="clock" class="w-4 h-4 text-purple-400"></i>
+                        <span>الخميس: الساعة 6:00 مساءً</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- English Card -->
+            <div class="garage-card rounded-2xl p-6 border-l-4 border-blue-500 shadow-sm transition">
+                <div class="w-12 h-12 rounded-xl bg-blue-950 light:bg-blue-100 text-blue-400 light:text-blue-700 border border-blue-500/30 flex items-center justify-center mb-4">
+                    <i data-lucide="languages" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-lg font-black text-slate-100 light:text-slate-900">اللغة الإنجليزية</h3>
+                <p class="text-xs font-bold text-blue-400 light:text-blue-600 mb-4">Mr. Yasser Ragab</p>
+                <div class="space-y-2 text-xs text-slate-300 light:text-slate-700">
+                    <div class="flex items-center gap-2 bg-slate-950 light:bg-slate-50 p-2.5 rounded-xl border border-slate-800 light:border-slate-200">
+                        <i data-lucide="clock" class="w-4 h-4 text-blue-400"></i>
+                        <span>الأحد: الساعة 7:00 مساءً</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-950 light:bg-slate-50 p-2.5 rounded-xl border border-slate-800 light:border-slate-200">
+                        <i data-lucide="clock" class="w-4 h-4 text-blue-400"></i>
+                        <span>الأربعاء: الساعة 7:00 مساءً</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Biology Card -->
+            <div class="garage-card rounded-2xl p-6 border-l-4 border-emerald-500 shadow-sm transition">
+                <div class="w-12 h-12 rounded-xl bg-emerald-950 light:bg-emerald-100 text-emerald-400 light:text-emerald-700 border border-emerald-500/30 flex items-center justify-center mb-4">
+                    <i data-lucide="dna" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-lg font-black text-slate-100 light:text-slate-900">الأحياء</h3>
+                <p class="text-xs font-bold text-emerald-400 light:text-emerald-600 mb-4">Mr. Mostafa Harb</p>
+                <div class="space-y-2 text-xs text-slate-300 light:text-slate-700">
+                    <div class="flex items-center gap-2 bg-slate-950 light:bg-slate-50 p-2.5 rounded-xl border border-slate-800 light:border-slate-200">
+                        <i data-lucide="clock" class="w-4 h-4 text-emerald-400"></i>
+                        <span>السبت: الساعة 4:00 مساءً</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-950 light:bg-slate-50 p-2.5 rounded-xl border border-slate-800 light:border-slate-200">
+                        <i data-lucide="clock" class="w-4 h-4 text-emerald-400"></i>
+                        <span>الخميس: الساعة 8:00 مساءً</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chemistry Card -->
+            <div class="garage-card rounded-2xl p-6 border-l-4 border-amber-500 shadow-sm transition">
+                <div class="w-12 h-12 rounded-xl bg-amber-950 light:bg-amber-100 text-amber-400 light:text-amber-700 border border-amber-500/30 flex items-center justify-center mb-4">
+                    <i data-lucide="flask-conical" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-lg font-black text-slate-100 light:text-slate-900">الكيمياء</h3>
+                <p class="text-xs font-bold text-amber-400 light:text-amber-600 mb-4">Mr. Mostafa Fawzy</p>
+                <div class="space-y-2 text-xs text-slate-300 light:text-slate-700">
+                    <div class="flex items-center gap-2 bg-slate-950 light:bg-slate-50 p-2.5 rounded-xl border border-slate-800 light:border-slate-200">
+                        <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
+                        <span>السبت: الساعة 7:00 مساءً</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-950 light:bg-slate-50 p-2.5 rounded-xl border border-slate-800 light:border-slate-200">
+                        <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
+                        <span>الاثنين: الساعة 6:00 مساءً</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Swimming Card -->
+            <div class="garage-card rounded-2xl p-6 border-l-4 border-teal-500 shadow-sm transition">
+                <div class="w-12 h-12 rounded-xl bg-teal-950 light:bg-teal-100 text-teal-400 light:text-teal-700 border border-teal-500/30 flex items-center justify-center mb-4">
+                    <i data-lucide="waves" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-lg font-black text-slate-100 light:text-slate-900">السباحة</h3>
+                <p class="text-xs font-bold text-teal-400 light:text-teal-600 mb-4">Coach Nour</p>
+                <div class="space-y-2 text-xs text-slate-300 light:text-slate-700">
+                    <div class="flex items-center gap-2 bg-slate-950 light:bg-slate-50 p-2.5 rounded-xl border border-slate-800 light:border-slate-200">
+                        <i data-lucide="clock" class="w-4 h-4 text-teal-400"></i>
+                        <span>الأحد: الساعة 5:00 مساءً</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-950 light:bg-slate-50 p-2.5 rounded-xl border border-slate-800 light:border-slate-200">
+                        <i data-lucide="clock" class="w-4 h-4 text-teal-400"></i>
+                        <span>الثلاثاء: الساعة 5:00 مساءً</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-950 light:bg-slate-50 p-2.5 rounded-xl border border-slate-800 light:border-slate-200">
+                        <i data-lucide="clock" class="w-4 h-4 text-teal-400"></i>
+                        <span>الخميس: الساعة 5:00 مساءً</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quran Card -->
+            <div class="garage-card rounded-2xl p-6 border-l-4 border-rose-500 shadow-sm transition">
+                <div class="w-12 h-12 rounded-xl bg-rose-950 light:bg-rose-100 text-rose-400 light:text-rose-700 border border-rose-500/30 flex items-center justify-center mb-4">
+                    <i data-lucide="book-open" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-lg font-black text-slate-100 light:text-slate-900">القرآن الكريم</h3>
+                <p class="text-xs font-bold text-rose-400 light:text-rose-600 mb-4">Ms. Arwa</p>
+                <div class="space-y-2 text-xs text-slate-300 light:text-slate-700">
+                    <div class="flex items-center gap-2 bg-slate-950 light:bg-slate-50 p-2.5 rounded-xl border border-slate-800 light:border-slate-200">
+                        <i data-lucide="clock" class="w-4 h-4 text-rose-400"></i>
+                        <span>الثلاثاء: الساعة 1:30 ظهراً</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-950 light:bg-slate-50 p-2.5 rounded-xl border border-slate-800 light:border-slate-200">
+                        <i data-lucide="clock" class="w-4 h-4 text-rose-400"></i>
+                        <span>الجمعة: الساعة 3:00 مساءً</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Daily Routine View -->
+        <div id="view-daily" class="hidden garage-card rounded-2xl p-6 space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 light:border-slate-200 pb-4">
+                <div>
+                    <h3 class="text-xl font-black text-slate-100 light:text-slate-900">خطة الروتين اليومي لمضمار السباق ⏰</h3>
+                    <p class="text-xs text-slate-400 light:text-slate-600">توزيع الساعات من انطلاقة الصباح حتى خط النهاية</p>
+                </div>
+            </div>
+
+            <div class="space-y-4 text-sm">
+                <div class="flex items-start gap-4 p-3.5 rounded-xl bg-sky-950/40 light:bg-sky-50 border border-sky-800/40 light:border-sky-200">
+                    <span class="px-3 py-1 bg-sky-600 text-white font-bold rounded-lg text-xs shrink-0">6:00 ص - 1:30 م</span>
+                    <div>
+                        <h4 class="font-bold text-sky-300 light:text-sky-900">🏫 انطلاقة المدرسة (STARTING GRID)</h4>
+                        <p class="text-xs text-sky-400 light:text-sky-700 mt-0.5">التركيز التام واستيعاب الحصص لبدء السباق بقوة.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4 p-3.5 rounded-xl bg-emerald-950/40 light:bg-emerald-50 border border-emerald-800/40 light:border-emerald-200">
+                    <span class="px-3 py-1 bg-emerald-600 text-white font-bold rounded-lg text-xs shrink-0">1:30 م - 3:00 م</span>
+                    <div>
+                        <h4 class="font-bold text-emerald-300 light:text-emerald-900">🥗 صيانة وتزود بالوقود (PIT STOP)</h4>
+                        <p class="text-xs text-emerald-400 light:text-emerald-700 mt-0.5">غداء، راحة، وشحن البطاريات للفترة المسائية.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4 p-3.5 rounded-xl bg-fuchsia-950/40 light:bg-fuchsia-50 border border-fuchsia-800/40 light:border-fuchsia-200">
+                    <span class="px-3 py-1 bg-fuchsia-600 text-white font-bold rounded-lg text-xs shrink-0">3:30 م - 4:30 م</span>
+                    <div>
+                        <h4 class="font-bold text-fuchsia-300 light:text-fuchsia-900">📘 تدريب القدرات اللفظية (TURBO BOOST)</h4>
+                        <p class="text-xs text-fuchsia-400 light:text-fuchsia-700 mt-0.5">أفضل وقت لتحقيق أقصى سرعة استيعاب وحل النماذج.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4 p-3.5 rounded-xl bg-purple-950/40 light:bg-purple-50 border border-purple-800/40 light:border-purple-200">
+                    <span class="px-3 py-1 bg-purple-600 text-white font-bold rounded-lg text-xs shrink-0">5:00 م - 9:00 م</span>
+                    <div>
+                        <h4 class="font-bold text-purple-300 light:text-purple-900">🎾 مضمار الدروس والتمارين (RACE TRACK)</h4>
+                        <p class="text-xs text-purple-400 light:text-purple-700 mt-0.5">الالتزام بجدول السباحة، الدروس الخصوصية، والمذاكرة.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4 p-3.5 rounded-xl bg-indigo-950/40 light:bg-indigo-50 border border-indigo-800/40 light:border-indigo-200">
+                    <span class="px-3 py-1 bg-indigo-600 text-white font-bold rounded-lg text-xs shrink-0">10:30 مساءً</span>
+                    <div>
+                        <h4 class="font-bold text-indigo-300 light:text-indigo-900">🌙 إيقاف المحرك والنوم (GARAGE SHUTDOWN)</h4>
+                        <p class="text-xs text-indigo-400 light:text-indigo-700 mt-0.5">الحصول على 7-8 ساعات راحة للاستعداد لسباق اليوم التالي.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL: SCHEDULE & WEEKLY EDITOR -->
+    <div id="editorModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="garage-card rounded-3xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-4 border border-red-500/50">
+            <div class="flex justify-between items-center border-b border-slate-800 light:border-slate-200 pb-3">
+                <h3 class="text-lg font-black text-slate-100 light:text-slate-900 flex items-center gap-2">
+                    <i data-lucide="settings" class="w-5 h-5 text-red-500"></i>
+                    تعديل جدول الأسبوع والمواعيد ⚙️
+                </h3>
+                <button onclick="closeEditorModal()" class="text-slate-400 hover:text-red-500 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <p class="text-xs text-slate-400 light:text-slate-600">تقدري تختاري اليوم وتضيفي أو تعدلي الحصص والمواعيد براحتك، وهتتحفظ فوراً!</p>
+
+            <div class="space-y-3">
+                <label class="block text-xs font-bold text-slate-300 light:text-slate-700">اختر اليوم للتعديل:</label>
+                <select id="editDaySelect" onchange="loadDayIntoEditor(this.value)" class="w-full bg-slate-900 light:bg-slate-100 text-slate-100 light:text-slate-900 rounded-xl px-4 py-2.5 text-xs font-bold border border-slate-700 light:border-slate-300 outline-none">
+                    <option value="Saturday">السبت</option>
+                    <option value="Sunday">الأحد</option>
+                    <option value="Monday">الاثنين</option>
+                    <option value="Tuesday">الثلاثاء</option>
+                    <option value="Wednesday">الأربعاء</option>
+                    <option value="Thursday">الخميس</option>
+                    <option value="Friday">الجمعة</option>
+                </select>
+            </div>
+
+            <div id="editItemsContainer" class="space-y-3">
+                <!-- Dynamic item inputs -->
+            </div>
+
+            <button onclick="addEditItemRow()" class="w-full py-2 bg-slate-900 light:bg-slate-100 hover:bg-slate-800 light:hover:bg-slate-200 text-cyan-400 light:text-cyan-700 rounded-xl text-xs font-bold border border-cyan-500/30 flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                إضافة حصة أو محطة جديدة لهذا اليوم
+            </button>
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800 light:border-slate-200">
+                <button onclick="closeEditorModal()" class="px-4 py-2 rounded-xl bg-slate-800 light:bg-slate-200 text-slate-300 light:text-slate-700 text-xs font-bold">إلغاء</button>
+                <button onclick="saveScheduleChanges()" class="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-lg shadow-red-600/30">حفظ التعديلات 💾</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: STUDY PLAN EDITOR (Math, Arabic, English, Bio, Chem, GAT) -->
+    <div id="studyEditorModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="garage-card rounded-3xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-4 border border-amber-500/50">
+            <div class="flex justify-between items-center border-b border-slate-800 light:border-slate-200 pb-3">
+                <h3 class="text-lg font-black text-slate-100 light:text-slate-900 flex items-center gap-2">
+                    <i data-lucide="book-open" class="w-5 h-5 text-amber-500"></i>
+                    تعديل جدول المواد والمهام الدراسية ✍️
+                </h3>
+                <button onclick="closeStudyEditorModal()" class="text-slate-400 hover:text-red-500 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div id="studyItemsContainer" class="space-y-3">
+                <!-- Dynamic study items -->
+            </div>
+
+            <button onclick="addStudyItemRow()" class="w-full py-2 bg-slate-900 light:bg-slate-100 hover:bg-slate-800 light:hover:bg-slate-200 text-amber-400 light:text-amber-700 rounded-xl text-xs font-bold border border-amber-500/30 flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                إضافة مادة دراسية جديدة
+            </button>
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800 light:border-slate-200">
+                <button onclick="closeStudyEditorModal()" class="px-4 py-2 rounded-xl bg-slate-800 light:bg-slate-200 text-slate-300 light:text-slate-700 text-xs font-bold">إلغاء</button>
+                <button onclick="saveStudyChanges()" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold shadow-lg">حفظ جدول المواد 💾</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default Master Schedule Data
+        const defaultScheduleData = {
+            Saturday: {
+                arName: "السبت",
+                badge: "إجازة مدرسة",
+                items: [
+                    { time: "10:00 ص - 11:30 ص", title: "📘 قدرات لفظي", desc: "تجميعات ونماذج", color: "fuchsia" },
+                    { time: "4:00 مساءً", title: "🧬 أحياء", desc: "Mr. Mostafa Harb", color: "emerald" },
+                    { time: "7:00 مساءً", title: "🧪 كيمياء", desc: "Mr. Mostafa Fawzy", color: "amber" }
+                ],
+                defaultTasks: ["حل واجب الأحياء", "مراجعة الكيمياء 30 دقيقة", "تدريب قدرات لفظي 45 دقيقة"]
+            },
+            Sunday: {
+                arName: "الأحد",
+                badge: "مدرسة",
+                items: [
+                    { time: "6:00 ص - 1:30 م", title: "🏫 مدرسة", desc: "الدوام المدرسي", color: "sky" },
+                    { time: "3:30 م - 4:30 م", title: "📘 قدرات لفظي", desc: "تدريب يومي", color: "fuchsia" },
+                    { time: "5:00 مساءً", title: "🏊‍♀️ سباحة", desc: "Coach Nour", color: "teal" },
+                    { time: "7:00 مساءً", title: "🇬🇧 إنجليزي", desc: "Mr. Yasser Ragab", color: "blue" },
+                    { time: "9:00 مساءً", title: "📐 رياضيات", desc: "Ms. Monira Fouad", color: "purple" }
+                ],
+                defaultTasks: ["تحضير دروس المدرسة", "تجهيز شنطة السباحة", "مراجعة تمارين الإنجليزي والرياضيات"]
+            },
+            Monday: {
+                arName: "الاثنين",
+                badge: "مدرسة",
+                items: [
+                    { time: "6:00 ص - 1:30 م", title: "🏫 مدرسة", desc: "الدوام المدرسي", color: "sky" },
+                    { time: "3:30 م - 4:30 م", title: "📘 قدرات لفظي", desc: "تدريب يومي", color: "fuchsia" },
+                    { time: "6:00 مساءً", title: "🧪 كيمياء", desc: "Mr. Mostafa Fawzy", color: "amber" },
+                    { time: "7:30 م - 9:00 م", title: "✍️ حل واجبات ومذاكرة", desc: "مراجعة وتطبيقات", color: "slate" }
+                ],
+                defaultTasks: ["مذاكرة الدرس الجديد للكيمياء", "حل واجبات اليوم", "قراءة نموذج قدرات"]
+            },
+            Tuesday: {
+                arName: "الثلاثاء",
+                badge: "مدرسة",
+                items: [
+                    { time: "6:00 ص - 1:30 م", title: "🏫 مدرسة", desc: "الدوام المدرسي", color: "sky" },
+                    { time: "1:30 ظهراً", title: "📖 قرآن", desc: "Ms. Arwa", color: "rose" },
+                    { time: "3:30 م - 4:30 م", title: "📘 قدرات لفظي", desc: "تدريب يومي", color: "fuchsia" },
+                    { time: "5:00 مساءً", title: "🏊‍♀️ سباحة", desc: "Coach Nour", color: "teal" }
+                ],
+                defaultTasks: ["تسميع ورد القرآن", "تمارين السباحة", "حل 20 سؤال قدرات"]
+            },
+            Wednesday: {
+                arName: "الأربعاء",
+                badge: "مدرسة",
+                items: [
+                    { time: "6:00 ص - 1:30 م", title: "🏫 مدرسة", desc: "الدوام المدرسي", color: "sky" },
+                    { time: "3:30 م - 4:30 م", title: "📘 قدرات لفظي", desc: "تدريب يومي", color: "fuchsia" },
+                    { time: "5:00 م - 6:30 م", title: "📚 تحضير أحياء للخميس", desc: "قراءة الباب الجديد", color: "emerald" },
+                    { time: "7:00 مساءً", title: "🇬🇧 إنجليزي", desc: "Mr. Yasser Ragab", color: "blue" }
+                ],
+                defaultTasks: ["تحضير شبابيك الأحياء", "حفظ الكلمات الجديدة للإنجليزي", "مراجعة سريعة للقدرات"]
+            },
+            Thursday: {
+                arName: "الخميس",
+                badge: "مدرسة",
+                items: [
+                    { time: "6:00 ص - 1:30 م", title: "🏫 مدرسة", desc: "الدوام المدرسي", color: "sky" },
+                    { time: "3:30 م - 4:30 م", title: "📘 قدرات لفظي", desc: "تدريب يومي", color: "fuchsia" },
+                    { time: "5:00 مساءً", title: "🏊‍♀️ سباحة", desc: "Coach Nour", color: "teal" },
+                    { time: "6:00 مساءً", title: "📐 رياضيات", desc: "Ms. Monira Fouad", color: "purple" },
+                    { time: "8:00 مساءً", title: "🧬 أحياء", desc: "Mr. Mostafa Harb", color: "emerald" }
+                ],
+                defaultTasks: ["التركيز في حصة الأحياء والرياضيات", "قضاء وقت ممتع بعد الدروس"]
+            },
+            Friday: {
+                arName: "الجمعة",
+                badge: "صيانة واستجمام",
+                items: [
+                    { time: "صباحاً", title: "☀️ نوم متأخر + راحة", desc: "استرخاء وصحة", color: "amber" },
+                    { time: "3:00 مساءً", title: "📖 قرآن", desc: "Ms. Arwa", color: "rose" },
+                    { time: "4:30 م - 5:30 م", title: "📘 قدرات (مراجعة الأسبوع)", desc: "اختبار شامل", color: "fuchsia" },
+                    { time: "مساءً", title: "✨ تجهيز أدوات الأسبوع الجديد", desc: "ترتيب الكتب والجدول", color: "indigo" }
+                ],
+                defaultTasks: ["قراءة سورة الكهف", "جلسة القرآن مع مس أروى", "ترتيب المكتب للأسبوع الجديد"]
+            }
+        };
+
+        // Default Study Plan Data (1. رياضيات, 2. عربي, 3. انجليزي, 4. احياء, 5. كيمياء, 6. لفظي)
+        const defaultStudyPlan = [
+            { id: 1, name: "📐 1. الرياضيات", goal: "حل تمارين الجبر والهندسة", time: "الأحد والخميس + مراجعة يومية", color: "purple", completed: false },
+            { id: 2, name: "📖 2. اللغة العربية", goal: "قواعد نحوية وتطبيقات النصوص", time: "يومي 20 دقيقة", color: "rose", completed: false },
+            { id: 3, name: "🇬🇧 3. اللغة الإنجليزية", goal: "حفظ كلمات وسماع المحادثات", time: "الأحد والأربعاء", color: "blue", completed: false },
+            { id: 4, name: "🧬 4. الأحياء", goal: "مراجعة الوراثة وأجهزة الجسم", time: "السبت والخميس", color: "emerald", completed: false },
+            { id: 5, name: "🧪 5. الكيمياء", goal: "تفاعلات العناصر وحل المسائل", time: "السبت والاثنين", color: "amber", completed: false },
+            { id: 6, name: "🎯 6. القدرات (لفظي)", goal: "التناظر اللفظي واستيعاب المقروء", time: "يومياً 3:30 م - 4:30 م", color: "fuchsia", completed: false }
+        ];
+
+        let scheduleData = JSON.parse(localStorage.getItem('jana_garage_schedule') || JSON.stringify(defaultScheduleData));
+        let studyPlan = JSON.parse(localStorage.getItem('jana_garage_study') || JSON.stringify(defaultStudyPlan));
+
+        const quotesList = [
+            { ar: "السرعة الحقيقية ليست في العشوائية، بل في التحكم الكامل والدقة المطلقة!", en: "Precision and speed build champions." },
+            { ar: "انطلاقة قوية كل يوم تعني وصول أسرع للهدف المنشود 🏁", en: "Every powerful start leads to victory." },
+            { ar: "استمر في الضغط على غيار التفوق ولا تتراجع أبداً 🏎️", en: "Keep shifting gears toward your dreams." },
+            { ar: "كل خطوة في جدولك اليومي هي لفة ناجحة في مضمار المجد ✨", en: "Every task is a winning lap." }
+        ];
+
+        let streak = parseInt(localStorage.getItem('jana_streak') || '0');
+        let tasks = JSON.parse(localStorage.getItem('jana_tasks') || '[]');
+        let isVerbalDone = false;
+        let pomoInterval = null;
+        let pomoTimeLeft = 25 * 60;
+        let pomoIsRunning = false;
+        let pomoCurrentMode = 'work';
+
+        window.onload = function() {
+            lucide.createIcons();
+
+            if (localStorage.getItem('jana_theme') === 'light') {
+                document.documentElement.classList.remove('dark');
+                document.body.classList.replace('bg-asphalt', 'bg-asphalt-light');
+                document.getElementById('themeIcon').setAttribute('data-lucide', 'moon');
+                lucide.createIcons();
+            }
+
+            updateStreakUI();
+
+            const daysMap = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const todayIndex = new Date().getDay();
+            const currentDayKey = daysMap[todayIndex];
+
+            const daySelector = document.getElementById('daySelector');
+            if (daySelector) {
+                daySelector.value = currentDayKey;
+                renderTodayCard(currentDayKey);
+            }
+
+            if (tasks.length === 0) {
+                tasks = (scheduleData[currentDayKey]?.defaultTasks || []).map((t, idx) => ({
+                    id: Date.now() + idx,
+                    text: t,
+                    completed: false
+                }));
+                saveTasks();
+            }
+            renderTasks();
+            renderWeeklyMatrix();
+            renderStudyPlan();
+            generateRandomQuote();
+        };
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('jana_theme', isDark ? 'dark' : 'light');
+            
+            if (isDark) {
+                document.body.classList.replace('bg-asphalt-light', 'bg-asphalt');
+                document.getElementById('themeIcon').setAttribute('data-lucide', 'sun');
+            } else {
+                document.body.classList.replace('bg-asphalt', 'bg-asphalt-light');
+                document.getElementById('themeIcon').setAttribute('data-lucide', 'moon');
+            }
+            lucide.createIcons();
+        }
+
+        function generateRandomQuote() {
+            const quote = quotesList[Math.floor(Math.random() * quotesList.length)];
+            document.getElementById('quoteText').innerText = `"${quote.ar}"`;
+            document.getElementById('quoteAuthor').innerText = `${quote.en} // JANA.GARAGE`;
+        }
+
+        function renderTodayCard(dayKey) {
+            const dayInfo = scheduleData[dayKey];
+            if (!dayInfo) return;
+
+            document.getElementById('todayDayName').innerText = dayInfo.arName;
+            const container = document.getElementById('todayScheduleBadges');
+            container.innerHTML = '';
+
+            const colorClasses = {
+                sky: 'bg-sky-950/40 light:bg-sky-50 border-sky-800 light:border-sky-200 text-sky-300 light:text-sky-900',
+                fuchsia: 'bg-fuchsia-950/40 light:bg-fuchsia-50 border-fuchsia-800 light:border-fuchsia-200 text-fuchsia-300 light:text-fuchsia-900',
+                emerald: 'bg-emerald-950/40 light:bg-emerald-50 border-emerald-800 light:border-emerald-200 text-emerald-300 light:text-emerald-900',
+                amber: 'bg-amber-950/40 light:bg-amber-50 border-amber-800 light:border-amber-200 text-amber-300 light:text-amber-900',
+                teal: 'bg-teal-950/40 light:bg-teal-50 border-teal-800 light:border-teal-200 text-teal-300 light:text-teal-900',
+                blue: 'bg-blue-950/40 light:bg-blue-50 border-blue-800 light:border-blue-200 text-blue-300 light:text-blue-900',
+                purple: 'bg-purple-950/40 light:bg-purple-50 border-purple-800 light:border-purple-200 text-purple-300 light:text-purple-900',
+                rose: 'bg-rose-950/40 light:bg-rose-50 border-rose-800 light:border-rose-200 text-rose-300 light:text-rose-900',
+                indigo: 'bg-indigo-950/40 light:bg-indigo-50 border-indigo-800 light:border-indigo-200 text-indigo-300 light:text-indigo-900',
+                slate: 'bg-slate-900 light:bg-slate-100 border-slate-700 light:border-slate-300 text-slate-200 light:text-slate-800'
+            };
+
+            dayInfo.items.forEach(item => {
+                const badge = document.createElement('div');
+                badge.className = `p-3 rounded-xl border text-xs font-bold transition transform hover:scale-[1.02] shadow-sm ${colorClasses[item.color] || colorClasses.slate}`;
+                badge.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[10px] opacity-80">${item.time}</span>
+                        <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-950 light:bg-red-100 text-red-400 light:text-red-700 border border-red-500/30">TURBO</span>
+                    </div>
+                    <div class="text-sm font-black">${item.title}</div>
+                    <div class="text-[10px] opacity-75 mt-0.5">${item.desc}</div>
+                `;
+                container.appendChild(badge);
+            });
+            lucide.createIcons();
+        }
+
+        function renderWeeklyMatrix() {
+            const container = document.getElementById('weeklyMatrixGrid');
+            container.innerHTML = '';
+
+            const dayKeys = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+            const borderColors = {
+                Saturday: "border-emerald-500",
+                Sunday: "border-cyan-500",
+                Monday: "border-amber-500",
+                Tuesday: "border-rose-500",
+                Wednesday: "border-blue-500",
+                Thursday: "border-indigo-500",
+                Friday: "border-red-500"
+            };
+
+            dayKeys.forEach(key => {
+                const day = scheduleData[key];
+                if (!day) return;
+
+                const col = document.createElement('div');
+                col.className = `garage-card rounded-2xl p-4 border-t-4 ${borderColors[key] || 'border-red-500'} shadow-sm transition`;
+                
+                let itemsHtml = '';
+                const colorClasses = {
+                    sky: 'bg-sky-950/40 light:bg-sky-50 border-sky-800 light:border-sky-200 text-sky-300 light:text-sky-900',
+                    fuchsia: 'bg-fuchsia-950/40 light:bg-fuchsia-50 border-fuchsia-800 light:border-fuchsia-200 text-fuchsia-300 light:text-fuchsia-900',
+                    emerald: 'bg-emerald-950/40 light:bg-emerald-50 border-emerald-800 light:border-emerald-200 text-emerald-300 light:text-emerald-900',
+                    amber: 'bg-amber-950/40 light:bg-amber-50 border-amber-800 light:border-amber-200 text-amber-300 light:text-amber-900',
+                    teal: 'bg-teal-950/40 light:bg-teal-50 border-teal-800 light:border-teal-200 text-teal-300 light:text-teal-900',
+                    blue: 'bg-blue-950/40 light:bg-blue-50 border-blue-800 light:border-blue-200 text-blue-300 light:text-blue-900',
+                    purple: 'bg-purple-950/40 light:bg-purple-50 border-purple-800 light:border-purple-200 text-purple-300 light:text-purple-900',
+                    rose: 'bg-rose-950/40 light:bg-rose-50 border-rose-800 light:border-rose-200 text-rose-300 light:text-rose-900',
+                    indigo: 'bg-indigo-950/40 light:bg-indigo-50 border-indigo-800 light:border-indigo-200 text-indigo-300 light:text-indigo-900',
+                    slate: 'bg-slate-900 light:bg-slate-100 border-slate-700 light:border-slate-300 text-slate-200 light:text-slate-800'
+                };
+
+                day.items.forEach(item => {
+                    itemsHtml += `
+                        <div class="p-2.5 rounded-xl border text-xs mb-2 ${colorClasses[item.color] || colorClasses.slate}">
+                            <div class="font-bold">${item.title}</div>
+                            <div class="text-[10px] opacity-80 mt-0.5">${item.time}</div>
+                            <div class="text-[10px] opacity-75">${item.desc}</div>
+                        </div>
+                    `;
+                });
+
+                col.innerHTML = `
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-black text-base text-slate-100 light:text-slate-900">${day.arName}</h3>
+                        <span class="text-[10px] font-bold bg-slate-900 light:bg-slate-100 px-2 py-0.5 rounded-full border border-slate-700 light:border-slate-300">${day.badge}</span>
+                    </div>
+                    <div class="space-y-1">${itemsHtml}</div>
+                `;
+                container.appendChild(col);
+            });
+            lucide.createIcons();
+        }
+
+        function renderStudyPlan() {
+            const container = document.getElementById('studyPlanGrid');
+            container.innerHTML = '';
+
+            const bgColors = {
+                purple: 'border-purple-500 bg-purple-950/20 light:bg-purple-50/50',
+                rose: 'border-rose-500 bg-rose-950/20 light:bg-rose-50/50',
+                blue: 'border-blue-500 bg-blue-950/20 light:bg-blue-50/50',
+                emerald: 'border-emerald-500 bg-emerald-950/20 light:bg-emerald-50/50',
+                amber: 'border-amber-500 bg-amber-950/20 light:bg-amber-50/50',
+                fuchsia: 'border-fuchsia-500 bg-fuchsia-950/20 light:bg-fuchsia-50/50'
+            };
+
+            studyPlan.forEach(item => {
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-2xl border-l-4 border border-slate-800 light:border-slate-200 shadow-sm transition ${bgColors[item.color] || 'border-red-500'} ${item.completed ? 'opacity-60 line-through' : ''}`;
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-black text-sm text-slate-100 light:text-slate-900">${escapeHtml(item.name)}</h4>
+                        <button onclick="toggleStudyItem(${item.id})" class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition ${item.completed ? 'bg-emerald-500 text-white' : 'bg-slate-900 light:bg-slate-200 text-slate-300 light:text-slate-700'}">
+                            ${item.completed ? 'منجز ✓' : 'إنجاز'}
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-300 light:text-slate-700 font-medium mb-1">${escapeHtml(item.goal)}</p>
+                    <div class="text-[10px] text-slate-400 light:text-slate-500 flex items-center gap-1 mt-2">
+                        <i data-lucide="clock" class="w-3 h-3"></i>
+                        <span>الجدولة: ${escapeHtml(item.time)}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function toggleStudyItem(id) {
+            studyPlan = studyPlan.map(i => i.id === id ? { ...i, completed: !i.completed } : i);
+            localStorage.setItem('jana_garage_study', JSON.stringify(studyPlan));
+            renderStudyPlan();
+            triggerCelebration("تقدم ممتاز في مادة دراسية جديدة! 📚✨");
+            incrementStreak();
+        }
+
+        // Editor Modal Logic
+        function openEditorModal() {
+            document.getElementById('editorModal').classList.remove('hidden');
+            loadDayIntoEditor(document.getElementById('editDaySelect').value);
+        }
+        function closeEditorModal() {
+            document.getElementById('editorModal').classList.add('hidden');
+        }
+
+        function loadDayIntoEditor(dayKey) {
+            const container = document.getElementById('editItemsContainer');
+            container.innerHTML = '';
+            const day = scheduleData[dayKey];
+            if (!day) return;
+
+            day.items.forEach((item, idx) => {
+                appendEditRow(item.title, item.time, item.desc, item.color);
+            });
+        }
+
+        function addEditItemRow() {
+            appendEditRow("", "", "", "slate");
+        }
+
+        function appendEditRow(title, time, desc, color) {
+            const container = document.getElementById('editItemsContainer');
+            const div = document.createElement('div');
+            div.className = "flex flex-col sm:flex-row gap-2 p-3 rounded-xl bg-slate-900/60 light:bg-slate-100 border border-slate-800 light:border-slate-200";
+            div.innerHTML = `
+                <input type="text" placeholder="عنوان الحصة (مثلاً: رياضيات)" value="${title}" class="edit-title flex-1 bg-slate-950 light:bg-white border border-slate-700 light:border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-100 light:text-slate-800 outline-none">
+                <input type="text" placeholder="الوقت (مثلاً: 5:00 م)" value="${time}" class="edit-time w-full sm:w-32 bg-slate-950 light:bg-white border border-slate-700 light:border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-100 light:text-slate-800 outline-none">
+                <input type="text" placeholder="الوصف أو المعلم" value="${desc}" class="edit-desc flex-1 bg-slate-950 light:bg-white border border-slate-700 light:border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-100 light:text-slate-800 outline-none">
+                <select class="edit-color bg-slate-950 light:bg-white border border-slate-700 light:border-slate-300 rounded-lg px-2 py-1.5 text-xs text-slate-100 light:text-slate-800 outline-none">
+                    <option value="sky" ${color==='sky'?'selected':''}>أزرق (مدرسة)</option>
+                    <option value="fuchsia" ${color==='fuchsia'?'selected':''}>فوشيا (قدرات)</option>
+                    <option value="emerald" ${color==='emerald'?'selected':''}>أخضر (أحياء)</option>
+                    <option value="amber" ${color==='amber'?'selected':''}>برتقالي (كيمياء)</option>
+                    <option value="purple" ${color==='purple'?'selected':''}>بنفسجي (رياضيات)</option>
+                    <option value="blue" ${color==='blue'?'selected':''}>أزرق داكن (إنجليزي)</option>
+                    <option value="teal" ${color==='teal'?'selected':''}>تركواز (سباحة)</option>
+                    <option value="rose" ${color==='rose'?'selected':''}>وردي (قرآن)</option>
+                </select>
+                <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-600 px-2 font-bold text-sm">✕</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function saveScheduleChanges() {
+            const dayKey = document.getElementById('editDaySelect').value;
+            const rows = document.querySelectorAll('#editItemsContainer > div');
+            const newItems = [];
+
+            rows.forEach(row => {
+                const title = row.querySelector('.edit-title').value.trim();
+                const time = row.querySelector('.edit-time').value.trim();
+                const desc = row.querySelector('.edit-desc').value.trim();
+                const color = row.querySelector('.edit-color').value;
+                if (title) {
+                    newItems.push({ title, time, desc, color });
+                }
+            });
+
+            scheduleData[dayKey].items = newItems;
+            localStorage.setItem('jana_garage_schedule', JSON.stringify(scheduleData));
+            renderTodayCard(dayKey);
+            renderWeeklyMatrix();
+            closeEditorModal();
+            triggerCelebration("تم تحديث جدول السباق بنجاح! 🚀✨");
+        }
+
+        // Study Plan Editor Modal Logic
+        function openStudyEditorModal() {
+            document.getElementById('studyEditorModal').classList.remove('hidden');
+            const container = document.getElementById('studyItemsContainer');
+            container.innerHTML = '';
+
+            studyPlan.forEach(item => {
+                appendStudyRow(item.id, item.name, item.goal, item.time, item.color);
+            });
+        }
+        function closeStudyEditorModal() {
+            document.getElementById('studyEditorModal').classList.add('hidden');
+        }
+
+        function addStudyItemRow() {
+            appendStudyRow(Date.now(), "", "", "", "purple");
+        }
+
+        function appendStudyRow(id, name, goal, time, color) {
+            const container = document.getElementById('studyItemsContainer');
+            const div = document.createElement('div');
+            div.className = "study-row flex flex-col sm:flex-row gap-2 p-3 rounded-xl bg-slate-900/60 light:bg-slate-100 border border-slate-800 light:border-slate-200";
+            div.dataset.id = id;
+            div.innerHTML = `
+                <input type="text" placeholder="اسم المادة (مثلاً: 1. رياضيات)" value="${name}" class="study-name flex-1 bg-slate-950 light:bg-white border border-slate-700 light:border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-100 light:text-slate-800 outline-none font-bold">
+                <input type="text" placeholder="الهدف (مثلاً: حل تمارين الجبر)" value="${goal}" class="study-goal flex-1 bg-slate-950 light:bg-white border border-slate-700 light:border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-100 light:text-slate-800 outline-none">
+                <input type="text" placeholder="الوقت (مثلاً: يومياً)" value="${time}" class="study-time w-full sm:w-32 bg-slate-950 light:bg-white border border-slate-700 light:border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-100 light:text-slate-800 outline-none">
+                <select class="study-color bg-slate-950 light:bg-white border border-slate-700 light:border-slate-300 rounded-lg px-2 py-1.5 text-xs text-slate-100 light:text-slate-800 outline-none">
+                    <option value="purple" ${color==='purple'?'selected':''}>بنفسجي</option>
+                    <option value="rose" ${color==='rose'?'selected':''}>وردي</option>
+                    <option value="blue" ${color==='blue'?'selected':''}>أزرق</option>
+                    <option value="emerald" ${color==='emerald'?'selected':''}>أخضر</option>
+                    <option value="amber" ${color==='amber'?'selected':''}>برتقالي</option>
+                    <option value="fuchsia" ${color==='fuchsia'?'selected':''}>فوشيا</option>
+                </select>
+                <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-600 px-2 font-bold text-sm">✕</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function saveStudyChanges() {
+            const rows = document.querySelectorAll('.study-row');
+            const newPlan = [];
+
+            rows.forEach(row => {
+                const id = parseInt(row.dataset.id) || Date.now();
+                const name = row.querySelector('.study-name').value.trim();
+                const goal = row.querySelector('.study-goal').value.trim();
+                const time = row.querySelector('.study-time').value.trim();
+                const color = row.querySelector('.study-color').value;
+                if (name) {
+                    const existing = studyPlan.find(s => s.id === id);
+                    newPlan.push({ id, name, goal, time, color, completed: existing ? existing.completed : false });
+                }
+            });
+
+            studyPlan = newPlan;
+            localStorage.setItem('jana_garage_study', JSON.stringify(studyPlan));
+            renderStudyPlan();
+            closeStudyEditorModal();
+            triggerCelebration("تم حفظ جدول المذاكرة بنجاح! 📚🏎️");
+        }
+
+        // To-Do Tasks Logic
+        function renderTasks() {
+            const listEl = document.getElementById('tasksList');
+            listEl.innerHTML = '';
+
+            if (tasks.length === 0) {
+                listEl.innerHTML = `
+                    <div class="text-center py-6 text-slate-500 text-xs">
+                        لا توجد مهام في المضمار حالياً! أضيفي مهمة جديدة للإنطلاق 🏎️
+                    </div>
+                `;
+            } else {
+                tasks.forEach(task => {
+                    const item = document.createElement('div');
+                    item.className = `flex items-center justify-between p-3 rounded-xl border transition-all ${
+                        task.completed 
+                            ? 'bg-emerald-950/30 light:bg-emerald-50 border-emerald-800/40 light:border-emerald-200 line-through text-slate-500' 
+                            : 'bg-slate-950/80 light:bg-white border-slate-800 light:border-slate-200 text-slate-200 light:text-slate-800'
+                    }`;
+                    item.innerHTML = `
+                        <div class="flex items-center gap-2.5 flex-1 cursor-pointer" onclick="toggleTask(${task.id})">
+                            <div class="w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                                task.completed 
+                                    ? 'bg-emerald-500 border-emerald-400 text-slate-950' 
+                                    : 'border-red-500/50 bg-slate-900 light:bg-slate-100'
+                            }">
+                                ${task.completed ? '<i data-lucide="check" class="w-3.5 h-3.5 stroke-[3]"></i>' : ''}
+                            </div>
+                            <span class="text-xs font-bold leading-snug">${escapeHtml(task.text)}</span>
+                        </div>
+                        <button onclick="deleteTask(${task.id})" class="text-slate-500 hover:text-red-400 p-1 transition" title="حذف">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    `;
+                    listEl.appendChild(item);
+                });
+            }
+            updateTasksProgress();
+            lucide.createIcons();
+        }
+
+        function addNewTask(e) {
+            e.preventDefault();
+            const input = document.getElementById('newTaskInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            tasks.push({ id: Date.now(), text: text, completed: false });
+            input.value = '';
+            saveTasks();
+            renderTasks();
+        }
+
+        function toggleTask(id) {
+            tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+            saveTasks();
+            renderTasks();
+
+            if (tasks.length > 0 && tasks.every(t => t.completed)) {
+                triggerCelebration("خط النهاية! أنجزتِ جميع مهام المضمار بنجاح 🏆");
+                incrementStreak();
+            }
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveTasks();
+            renderTasks();
+        }
+
+        function clearCompletedTasks() {
+            tasks = tasks.filter(t => !t.completed);
+            saveTasks();
+            renderTasks();
+        }
+
+        function updateTasksProgress() {
+            const completedCount = tasks.filter(t => t.completed).length;
+            const totalCount = tasks.length;
+            const percent = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
+
+            document.getElementById('todoProgressText').innerText = `${completedCount} / ${totalCount} (${percent}%)`;
+            document.getElementById('todoProgressBar').style.width = `${percent}%`;
+            document.getElementById('tasksRemainingCount').innerText = `${totalCount - completedCount} مهام متبقية`;
+        }
+
+        function saveTasks() {
+            localStorage.setItem('jana_tasks', JSON.stringify(tasks));
+        }
+
+        function markAllTodayTasksComplete() {
+            if (tasks.length === 0) {
+                tasks = [
+                    { id: Date.now(), text: "إنهاء مذاكرة اليوم بكفاءة", completed: true },
+                    { id: Date.now() + 1, text: "إنجاز تدريب القدرات", completed: true }
+                ];
+            } else {
+                tasks = tasks.map(t => ({ ...t, completed: true }));
+            }
+            saveTasks();
+            renderTasks();
+            triggerCelebration("انطلاقة صاروخية! أنجزتِ جميع مهام اليوم بامتياز 🏁✨");
+            incrementStreak();
+        }
+
+        function updateStreakUI() {
+            document.getElementById('streakCounter').innerText = `${streak} PTS 🔥`;
+        }
+
+        function incrementStreak() {
+            streak += 1;
+            localStorage.setItem('jana_streak', streak.toString());
+            updateStreakUI();
+        }
+
+        function triggerCelebration(message) {
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 140, spread: 90, origin: { y: 0.6 } });
+            }
+        }
+
+        // Pomodoro Timer Logic
+        function setPomoMode(mode) {
+            pomoCurrentMode = mode;
+            clearInterval(pomoInterval);
+            pomoIsRunning = false;
+            updatePomoPlayButtonUI();
+
+            const btnWork = document.getElementById('btnPomoWork');
+            const btnShort = document.getElementById('btnPomoShort');
+            const btnLong = document.getElementById('btnPomoLong');
+            const badge = document.getElementById('pomoModeBadge');
+
+            const activeClass = "py-2 rounded-lg transition bg-red-600 text-white shadow-sm";
+            const inactiveClass = "py-2 rounded-lg transition text-slate-400 light:text-slate-600 hover:text-slate-200";
+
+            btnWork.className = mode === 'work' ? activeClass : inactiveClass;
+            btnShort.className = mode === 'shortBreak' ? activeClass : inactiveClass;
+            btnLong.className = mode === 'longBreak' ? activeClass : inactiveClass;
+
+            if (mode === 'work') {
+                pomoTimeLeft = 25 * 60;
+                badge.innerText = "وضع السرعة القصوى 🎯";
+                document.getElementById('pomoStatusText').innerText = "جاهزة للسباق والتركيز 25 دقيقة؟ 🚀";
+            } else if (mode === 'shortBreak') {
+                pomoTimeLeft = 5 * 60;
+                badge.innerText = "صيانة قصيرة ☕";
+                document.getElementById('pomoStatusText').innerText = "استراحة صيانة 5 دقائق واشربي ماء 💧";
+            } else if (mode === 'longBreak') {
+                pomoTimeLeft = 15 * 60;
+                badge.innerText = "استراحة الكراج 🛋️";
+                document.getElementById('pomoStatusText').innerText = "استريحي في الكراج 15 دقيقة وجددي طاقتك ✨";
+            }
+            updatePomoDisplay();
+        }
+
+        function togglePomoTimer() {
+            if (pomoIsRunning) {
+                clearInterval(pomoInterval);
+                pomoIsRunning = false;
+                document.getElementById('pomoStatusText').innerText = "توقف مؤقت في المضمار ⏸️";
+            } else {
+                pomoIsRunning = true;
+                document.getElementById('pomoStatusText').innerText = "المحرك يعمل بأقصى طاقة.. انطلقي! 💪";
+                pomoInterval = setInterval(() => {
+                    pomoTimeLeft--;
+                    updatePomoDisplay();
+
+                    if (pomoTimeLeft <= 0) {
+                        clearInterval(pomoInterval);
+                        pomoIsRunning = false;
+                        updatePomoPlayButtonUI();
+                        triggerCelebration("انتهت الجولة! عمل عظيم يا بطلة 👏");
+                        incrementStreak();
+                        if (pomoCurrentMode === 'work') {
+                            setPomoMode('shortBreak');
+                        } else {
+                            setPomoMode('work');
+                        }
+                    }
+                }, 1000);
+            }
+            updatePomoPlayButtonUI();
+        }
+
+        function resetPomoTimer() {
+            setPomoMode(pomoCurrentMode);
+        }
+
+        function updatePomoDisplay() {
+            const minutes = Math.floor(pomoTimeLeft / 60);
+            const seconds = pomoTimeLeft % 60;
+            document.getElementById('pomoTimerDisplay').innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function updatePomoPlayButtonUI() {
+            const icon = document.getElementById('pomoPlayIcon');
+            const text = document.getElementById('pomoStartBtnText');
+
+            if (pomoIsRunning) {
+                icon.setAttribute('data-lucide', 'pause');
+                text.innerText = "توقف مؤقت";
+            } else {
+                icon.setAttribute('data-lucide', 'play');
+                text.innerText = pomoTimeLeft < (pomoCurrentMode === 'work' ? 25*60 : 5*60) ? "استئناف السباق" : "انطلاق السباق";
+            }
+            lucide.createIcons();
+        }
+
+        function switchTab(tabName) {
+            ['weekly', 'teachers', 'daily'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                const view = document.getElementById(`view-${t}`);
+                if (t === tabName) {
+                    btn.className = "tab-btn px-5 py-2.5 rounded-xl font-bold text-xs bg-red-600 text-white shadow-md flex items-center gap-2 transition";
+                    view.classList.remove('hidden');
+                } else {
+                    btn.className = "tab-btn px-5 py-2.5 rounded-xl font-bold text-xs bg-slate-900 light:bg-slate-100 text-slate-300 light:text-slate-700 hover:bg-slate-800 light:hover:bg-slate-200 flex items-center gap-2 transition border border-slate-800 light:border-slate-200";
+                    view.classList.add('hidden');
+                }
+            });
+        }
+
+        function toggleVerbalStatus() {
+            isVerbalDone = !isVerbalDone;
+            const btn = document.getElementById('verbalBtn');
+            const text = document.getElementById('verbalBtnText');
+            
+            if (isVerbalDone) {
+                btn.className = "px-5 py-2.5 rounded-xl font-bold text-xs bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition shadow-lg flex items-center gap-2 transform active:scale-95";
+                text.innerText = "ممتازة! اجتزتِ سباق القدرات 🎉";
+                triggerCelebration("بطلة المضمار! إنجاز القدرات يقربك للـ 100% 🎯");
+                incrementStreak();
+            } else {
+                btn.className = "px-5 py-2.5 rounded-xl font-bold text-xs bg-amber-400 text-slate-950 hover:bg-amber-300 transition shadow-lg flex items-center gap-2 transform active:scale-95";
+                text.innerText = "أتممت سباق القدرات اليوم ✨";
+            }
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
